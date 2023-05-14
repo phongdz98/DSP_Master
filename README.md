@@ -18,4 +18,9 @@
     $ cd final_app
   $ ./main.exe
     ```
+* Создать exe файл из Python:
+    ```sh
+    $ cd python_code
+  $ pyinstaller --onefile -w main.py
+    ```
 
