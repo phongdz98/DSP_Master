@@ -17,7 +17,7 @@ def run_goertzel():
     freq_max = float(entry_freq_max.get())
     fs = float(entry_fs.get())
 
-    Y = goertzel.goertzel(x, fs, freq_min, freq_max,N)
+    Y = goertzel.goertzel(x, fs, freq_min, freq_max, N)
     f = np.arange(freq_min, freq_max, fs / N)
     goertzel.csv_output(Y, f)
     plt.stem(f, Y)
@@ -30,14 +30,15 @@ def select_file():
                                                filetypes=(("mat file", "*.mat"),
                                                           ("music file", "*.wav;*.mp3"),
                                                           ("all files", "*.*")))
-    entry_signal.delete(0,END)
+    entry_signal.delete(0, END)
     entry_signal.insert(0, root.filename)
     entry_freq_max.delete(0, END)
-    entry_freq_max.insert(0,goertzel.get_freq(root.filename))
+    entry_freq_max.insert(0, goertzel.get_freq(root.filename))
     entry_samples.delete(0, END)
     entry_samples.insert(0, goertzel.get_total_samples(root.filename))
     entry_fs.delete(0, END)
     entry_fs.insert(0, goertzel.get_freq(root.filename))
+
 
 def diagram_input():
     file_path = root.filename
@@ -50,12 +51,7 @@ def diagram_input():
     plt.xlabel('Время (s)')
     plt.ylabel('Амплитуда')
     plt.title('Входный сигнал')
-
     plt.show()
-
-
-
-
 
 
 # TODO: Interface
@@ -71,7 +67,7 @@ label_signal = Label(text="Выберите файл сигнала:")
 label_signal.grid(column=0, row=0, pady=10)
 
 entry_signal = Entry(width=50)
-entry_signal.insert(END,  "Файл не выбран.")
+entry_signal.insert(END, "Файл не выбран.")
 entry_signal.grid(column=1, row=0, sticky="EW", pady=10, columnspan=2)
 
 button = Button(text="Выбор файл", command=select_file)
@@ -79,16 +75,16 @@ button.grid(column=3, row=0, pady=10)
 
 # 1. Viewing frequency range
 label_signal = Label(text="Диапазон просмотриваемых частот:")
-label_signal.grid( column=0, row=1, pady=10)
+label_signal.grid(column=0, row=1, pady=10)
 
 frame_freq = Frame(root)
 frame_freq.grid(column=1, row=1, sticky="EW", pady=10, columnspan=2)
-label_freq_min = Label(frame_freq,text="F1,Гц:")
+label_freq_min = Label(frame_freq, text="F1,Гц:")
 label_freq_min.grid(column=0, row=0)
 entry_freq_min = Entry(frame_freq, width=5)
 entry_freq_min.insert(END, '0')
 entry_freq_min.grid(column=1, row=0)
-label_freq_max = Label(frame_freq,text="F2,Гц:")
+label_freq_max = Label(frame_freq, text="F2,Гц:")
 label_freq_max.grid(column=2, row=0)
 entry_freq_max = Entry(frame_freq, width=5)
 entry_freq_max.insert(END, '0')
@@ -97,16 +93,16 @@ entry_freq_max.grid(column=3, row=0)
 # 2. Number of sample
 label_samples = Label(text="Количество отчетов всего:")
 label_samples.grid(column=0, row=2, pady=10)
-entry_samples = Entry(width=5)
+entry_samples = Entry(width=8)
 entry_samples.insert(END, '0')
-entry_samples.grid(sticky="W",column=1, row=2, pady=10)
+entry_samples.grid(sticky="W", column=1, row=2, pady=10)
 
 # 3. fs
 label_fs = Label(text="Частота дискретизации:")
 label_fs.grid(column=0, row=3, pady=10)
-entry_fs = Entry(width=5)
+entry_fs = Entry(width=8)
 entry_fs.insert(END, '0')
-entry_fs.grid(sticky="W",column=1, row=3, pady=10)
+entry_fs.grid(sticky="W", column=1, row=3, pady=10)
 
 # 4.Start button
 run_button = Button(root, text="Тест", command=run_goertzel)
