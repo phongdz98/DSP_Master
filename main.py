@@ -15,8 +15,8 @@ def run_goertzel():
         x = x.T[0]
     N = len(x)
 
-    Y = goertzel.goertzel(x, fs, 0, fs)
-    f = np.arange(0, fs, fs / N)
+    Y = goertzel.goertzel(x, fs, 0, 1)
+    f = np.arange(0, 1, fs / N)
     plt.stem(f, Y)
     plt.grid(True)
     plt.show()
@@ -36,13 +36,6 @@ root = Tk()
 root.title('Goertzel algorithm')
 root.iconbitmap('icon.ico')
 root.config(padx=20, pady=20)
-
-# my_label = Label(root, text="No file selected.")
-# my_label.pack()
-#
-# select_button = Button(root, text="Select File", command=select_file)
-# select_button.pack()
-#
 
 
 label = Label(text="Выберите файл сигнала:")
