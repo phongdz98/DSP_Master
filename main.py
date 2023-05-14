@@ -1,5 +1,4 @@
 from tkinter import filedialog
-
 import goertzel
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,12 +10,16 @@ def run_goertzel():
     file_path = root.filename
     x, fs = goertzel.read_signal(file_path)
     _, ext = os.path.splitext(file_path)
-    if ext == '.wav':
+    if ext in ['.wav', '.mp3']:
         x = x.T[0]
-    N = len(x)
+    N = int(entry_samples.get())
+    freq_min = float(entry_freq_min.get())
+    freq_max = float(entry_freq_max.get())
+    fs = float(entry_fs.get())
 
-    Y = goertzel.goertzel(x, fs, 0, 1)
-    f = np.arange(0, 1, fs / N)
+    Y = goertzel.goertzel(x, fs, freq_min, freq_max,N)
+    f = np.arange(freq_min, freq_max, fs / N)
+    goertzel.csv_output(Y, f)
     plt.stem(f, Y)
     plt.grid(True)
     plt.show()
@@ -25,30 +28,99 @@ def run_goertzel():
 def select_file():
     root.filename = filedialog.askopenfilename(initialdir='./input', title='Select A File',
                                                filetypes=(("mat file", "*.mat"),
-                                                          ("music file", "*.wav;*.mp3;*.flac;*.aac"),
+                                                          ("music file", "*.wav;*.mp3"),
                                                           ("all files", "*.*")))
-    entry.delete(0,END)
-    entry.insert(0, root.filename)
+    entry_signal.delete(0,END)
+    entry_signal.insert(0, root.filename)
+    entry_freq_max.delete(0, END)
+    entry_freq_max.insert(0,goertzel.get_freq(root.filename))
+    entry_samples.delete(0, END)
+    entry_samples.insert(0, goertzel.get_total_samples(root.filename))
+    entry_fs.delete(0, END)
+    entry_fs.insert(0, goertzel.get_freq(root.filename))
+
+def diagram_input():
+    file_path = root.filename
+    x, fs = goertzel.read_signal(file_path)
+    _, ext = os.path.splitext(file_path)
+    if ext in ['.wav', '.mp3']:
+        x = x.T[0]
+    plt.plot(x)
+    plt.grid(True)
+    plt.xlabel('Время (s)')
+    plt.ylabel('Амплитуда')
+    plt.title('Входный сигнал')
+
+    plt.show()
+
+
+
+
 
 
 # TODO: Interface
 root = Tk()
-root.title('Goertzel algorithm')
+root.title('Алгоритм Герцеля')
 root.iconbitmap('icon.ico')
-root.config(padx=20, pady=20)
+root.config(pady=20, padx=20)
+root.minsize(width=600, height=300)
+root.resizable(False, False)
 
+# 0.Input signal
+label_signal = Label(text="Выберите файл сигнала:")
+label_signal.grid(column=0, row=0, pady=10)
 
-label = Label(text="Выберите файл сигнала:")
-label.grid(column=0, row=0)
-
-entry = Entry(width=100)
-entry.insert(END,  "Файл не выбран.")
-entry.grid(column=1, row=0, sticky="EW")
+entry_signal = Entry(width=50)
+entry_signal.insert(END,  "Файл не выбран.")
+entry_signal.grid(column=1, row=0, sticky="EW", pady=10, columnspan=2)
 
 button = Button(text="Выбор файл", command=select_file)
-button.grid(column=2, row=0)
+button.grid(column=3, row=0, pady=10)
 
-run_button = Button(root, text="Start", command=run_goertzel)
-run_button.grid(column=0, row=1, columnspan=3)
+# 1. Viewing frequency range
+label_signal = Label(text="Диапазон просмотриваемых частот:")
+label_signal.grid( column=0, row=1, pady=10)
+
+frame_freq = Frame(root)
+frame_freq.grid(column=1, row=1, sticky="EW", pady=10, columnspan=2)
+label_freq_min = Label(frame_freq,text="F1,Гц:")
+label_freq_min.grid(column=0, row=0)
+entry_freq_min = Entry(frame_freq, width=5)
+entry_freq_min.insert(END, '0')
+entry_freq_min.grid(column=1, row=0)
+label_freq_max = Label(frame_freq,text="F2,Гц:")
+label_freq_max.grid(column=2, row=0)
+entry_freq_max = Entry(frame_freq, width=5)
+entry_freq_max.insert(END, '0')
+entry_freq_max.grid(column=3, row=0)
+
+# 2. Number of sample
+label_samples = Label(text="Количество отчетов всего:")
+label_samples.grid(column=0, row=2, pady=10)
+entry_samples = Entry(width=5)
+entry_samples.insert(END, '0')
+entry_samples.grid(sticky="W",column=1, row=2, pady=10)
+
+# 3. fs
+label_fs = Label(text="Частота дискретизации:")
+label_fs.grid(column=0, row=3, pady=10)
+entry_fs = Entry(width=5)
+entry_fs.insert(END, '0')
+entry_fs.grid(sticky="W",column=1, row=3, pady=10)
+
+# 4.Start button
+run_button = Button(root, text="Тест", command=run_goertzel)
+run_button.grid(column=1, row=4, pady=10)
+run_button = Button(root, text="Диаграмма входного сигнала", command=diagram_input)
+run_button.grid(column=0, row=4, pady=10)
+
+# 5.Label output
+text_output = Text(root, height=10, width=100, bg="white")
+text_output.grid(column=0, row=5, columnspan=4, pady=10)
+
+scrollbar = Scrollbar(root, command=text_output.yview)
+scrollbar.grid(column=4, row=5, sticky="NS", pady=10)
+
+text_output.config(yscrollcommand=scrollbar.set)
 
 root.mainloop()

@@ -2,10 +2,11 @@ import numpy as np
 from scipy.io import loadmat
 import soundfile as sf
 import os.path
+import pandas as pd
 
 
-def goertzel(signal, sampling_rate, freq_min, freq_max):
-    N = len(signal)
+def goertzel(signal, sampling_rate, freq_min, freq_max, num_samples):
+    N = num_samples
     X = []
     f_array = np.arange(freq_min, freq_max, sampling_rate / N)
 
@@ -26,21 +27,28 @@ def goertzel(signal, sampling_rate, freq_min, freq_max):
     return X
 
 
-def read_mat_signal(file_path):
-    mat = loadmat(file_path)
-    x = mat['x'].ravel()
-    fs = int(mat['fs'])
-    return x, fs
-
-
-def read_audio_signal(file_path):
-    signal, Fs = sf.read(file_path)
-    return signal, Fs
-
-
 def read_signal(file_path):
     _, ext = os.path.splitext(file_path)
     if ext == '.mat':
-        return read_mat_signal(file_path)
+        mat = loadmat(file_path)
+        signal = mat['x'].ravel()
+        fs = int(mat['fs'])
     else:
-        return read_audio_signal(file_path)
+        signal, fs = sf.read(file_path)
+    return signal, fs
+
+
+def get_freq(file_path):
+    signal, fs = read_signal(file_path)
+    return fs
+
+
+def get_total_samples(file_path):
+    signal, fs = read_signal(file_path)
+    return len(signal)
+
+def csv_output(A,f):
+    df = pd.DataFrame({'frequencies': f, 'amplitudes': A})
+    df.to_csv('./output/output.csv', index=False)
+
+
