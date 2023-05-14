@@ -9,5 +9,5 @@
 2. Install the requirements:
 
     ```sh
-    (venv)$ pip install -r requirements.txt
+    install -r requirements.txt
     ```
