@@ -2,7 +2,13 @@ import numpy as np
 from scipy.io import loadmat
 import soundfile as sf
 import os.path
-import pandas as pd
+import tkinter as tk
+
+
+class MyTk(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filename = None
 
 
 def goertzel(signal, sampling_rate, freq_min, freq_max, num_samples):
@@ -46,9 +52,3 @@ def get_freq(file_path):
 def get_total_samples(file_path):
     signal, fs = read_signal(file_path)
     return len(signal)
-
-def csv_output(A,f):
-    df = pd.DataFrame({'frequencies': f, 'amplitudes': A})
-    df.to_csv('./output/output.csv', index=False)
-
-

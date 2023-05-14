@@ -1,28 +1,42 @@
+import tkinter
+from tkinter import *
 from tkinter import filedialog
+
+import pandas
+
 import goertzel
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
-from tkinter import *
+import pandas as pd
+
+global df
+df = pandas.DataFrame()
 
 
 def run_goertzel():
-    file_path = root.filename
-    x, fs = goertzel.read_signal(file_path)
-    _, ext = os.path.splitext(file_path)
-    if ext in ['.wav', '.mp3']:
-        x = x.T[0]
-    N = int(entry_samples.get())
-    freq_min = float(entry_freq_min.get())
-    freq_max = float(entry_freq_max.get())
-    fs = float(entry_fs.get())
+    global df
+    if not root.filename:
+        tkinter.messagebox.showerror('Error', 'Выберите файл сигнала!!!!!!!')
+    else:
+        file_path = root.filename
+        x, fs = goertzel.read_signal(file_path)
+        _, ext = os.path.splitext(file_path)
+        if ext in ['.wav', '.mp3']:
+            x = x.T[0]
+        N = int(entry_samples.get())
+        freq_min = float(entry_freq_min.get())
+        freq_max = float(entry_freq_max.get())
+        fs = float(entry_fs.get())
 
-    Y = goertzel.goertzel(x, fs, freq_min, freq_max, N)
-    f = np.arange(freq_min, freq_max, fs / N)
-    goertzel.csv_output(Y, f)
-    plt.stem(f, Y)
-    plt.grid(True)
-    plt.show()
+        Y = goertzel.goertzel(x, fs, freq_min, freq_max, N)
+        f = np.arange(freq_min, freq_max, fs / N)
+        df = pd.DataFrame({'frequencies': f, 'amplitudes': Y})
+        text_output.delete('1.0', 'end')
+        text_output.insert('end', df.to_string(index=False, justify='center', float_format='%.2f'))
+        plt.stem(f, Y)
+        plt.grid(True)
+        plt.show()
 
 
 def select_file():
@@ -41,21 +55,39 @@ def select_file():
 
 
 def diagram_input():
-    file_path = root.filename
-    x, fs = goertzel.read_signal(file_path)
-    _, ext = os.path.splitext(file_path)
-    if ext in ['.wav', '.mp3']:
-        x = x.T[0]
-    plt.plot(x)
-    plt.grid(True)
-    plt.xlabel('Время (s)')
-    plt.ylabel('Амплитуда')
-    plt.title('Входный сигнал')
-    plt.show()
+    if not root.filename:
+        tkinter.messagebox.showerror('Error', 'Выберите файл сигнала!!!!!!!')
+    else:
+        file_path = root.filename
+        x, fs = goertzel.read_signal(file_path)
+        _, ext = os.path.splitext(file_path)
+        N = int(entry_samples.get())
+        if ext in ['.wav', '.mp3']:
+            x = x.T[0]
+        plt.plot(x)
+        plt.xlim(0,N)
+        plt.grid(True)
+        plt.xlabel('Время (s)')
+        plt.ylabel('Амплитуда')
+        plt.title('Входный сигнал')
+        plt.show()
+
+
+def create_csv():
+    if not df.empty:
+        filename = filedialog.asksaveasfilename(defaultextension='.csv', initialdir='./output',
+                                                filetypes=(("csv file", "*.csv"),
+                                                           ("all files", "*.*"))
+                                                )
+        df.to_csv(filename, index=False)
+        text_output.insert("end", f'\n Создать {filename}!!!!')
+        text_output.see(END)
+    else:
+        tkinter.messagebox.showerror('Error', 'Нет данных для сохранения.')
 
 
 # TODO: Interface
-root = Tk()
+root = goertzel.MyTk()
 root.title('Алгоритм Герцеля')
 root.iconbitmap('icon.ico')
 root.config(pady=20, padx=20)
@@ -104,18 +136,21 @@ entry_fs = Entry(width=8)
 entry_fs.insert(END, '0')
 entry_fs.grid(sticky="W", column=1, row=3, pady=10)
 
-# 4.Start button
+# 4.Buttons
 run_button = Button(root, text="Тест", command=run_goertzel)
 run_button.grid(column=1, row=4, pady=10)
 run_button = Button(root, text="Диаграмма входного сигнала", command=diagram_input)
 run_button.grid(column=0, row=4, pady=10)
+csv_button = Button(root, text="Создать CSV файл", command=create_csv)
+csv_button.grid(column=2, row=4, pady=10)
 
-# 5.Label output
+# 5. Output
 text_output = Text(root, height=10, width=100, bg="white")
 text_output.grid(column=0, row=5, columnspan=4, pady=10)
 
 scrollbar = Scrollbar(root, command=text_output.yview)
 scrollbar.grid(column=4, row=5, sticky="NS", pady=10)
+scrollbar.set(0.0, 1.0)
 
 text_output.config(yscrollcommand=scrollbar.set)
 
