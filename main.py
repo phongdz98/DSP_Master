@@ -2,7 +2,7 @@ import goertzel
 import matplotlib.pyplot as plt
 import numpy as np
 
-x, fs = goertzel.read_signal('bas-gitara-zvuk-zvuk-42332.wav')
+x, fs = goertzel.read_signal('input file/bas-gitara-zvuk-zvuk-42332.wav')
 x = x.T[0]
 N = len(x)
 
