@@ -8,7 +8,7 @@
 * Clone and install:
 
     ```sh
-  $ git clone https://github.com/NaleRaphael/goertzel-fft.git
+  $ git clone git@github.com:phongdz98/DSP_Master.git
   $ install -r requirements.txt
     ```
 * Run code:
