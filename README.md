@@ -3,11 +3,20 @@
 ## Условие
 Разработать программу, определяющую амплитуду произвольного количества заданных пользователем частот входного сигнала с помощью алгоритма Гёрцеля. Формат входного файла может быть аудио, либо текстовый (на выбор).
 
-## Want to use this project?
+## Installation & Usage
 
-1. Fork/Clone
-2. Install the requirements:
+* Clone and install:
 
     ```sh
-    install -r requirements.txt
+  $ git clone https://github.com/NaleRaphael/goertzel-fft.git
+  $ install -r requirements.txt
     ```
+* Run code:
+    ```sh
+    python main.py
+    ```
+  Or
+    ```sh
+    ./goertzel.exe
+    ```
+
