@@ -24,6 +24,6 @@
 * Как создать exe файл из Python?
     ```sh
     $ cd python_code
-  $ pyinstaller --onefile -w main.py
+  $ pyinstaller --onefile --clean --icon=icon.ico  -w main.py
     ```
 

@@ -1,20 +1,19 @@
 import tkinter
 from tkinter import *
 from tkinter import filedialog
-
-import pandas
-
 import goertzel
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
-import pandas as pd
+import csv
+from tabulate import tabulate
+# import pandas
 
-global df
-df = pandas.DataFrame()
+data_list = []
 
 
 def run_goertzel():
+    global data_list
     global df
     if not root.filename:
         tkinter.messagebox.showerror('Error', 'Выберите файл сигнала!!!!!!!')
@@ -31,9 +30,11 @@ def run_goertzel():
 
         Y = goertzel.goertzel(x, fs, freq_min, freq_max, N)
         f = np.arange(freq_min, freq_max, fs / N)
-        df = pd.DataFrame({'frequencies': f, 'amplitudes': Y})
+        data_list = [(f[i], Y[i]) for i in range(len(f))]
         text_output.delete('1.0', 'end')
-        text_output.insert('end', df.to_string(index=False, justify='center', float_format='%.2f'))
+        table = [[f[i], Y[i]] for i in range(len(f))]
+        headers = ["frequencies", "amplitudes"]
+        text_output.insert('end', tabulate(table, headers, tablefmt="presto"))
         plt.stem(f, Y)
         plt.grid(True)
         plt.show()
@@ -74,12 +75,15 @@ def diagram_input():
 
 
 def create_csv():
-    if not df.empty:
+    if data_list:
         filename = filedialog.asksaveasfilename(defaultextension='.csv', initialdir='./output',
                                                 filetypes=(("csv file", "*.csv"),
                                                            ("all files", "*.*"))
                                                 )
-        df.to_csv(filename, index=False)
+        with open(filename, mode='w',newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['frequencies', 'amplitudes'])
+            writer.writerows(data_list)
         text_output.insert("end", f'\n Создать {filename}!!!!')
         text_output.see(END)
     else:
@@ -89,7 +93,7 @@ def create_csv():
 # TODO: Interface
 root = goertzel.MyTk()
 root.title('Алгоритм Герцеля')
-root.iconbitmap('icon.ico')
+root.iconbitmap('./icon.ico')
 root.config(pady=20, padx=20)
 root.minsize(width=600, height=300)
 root.resizable(False, False)
