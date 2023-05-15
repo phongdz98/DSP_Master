@@ -7,7 +7,6 @@ import numpy as np
 import os.path
 import csv
 from tabulate import tabulate
-# import pandas
 
 data_list = []
 

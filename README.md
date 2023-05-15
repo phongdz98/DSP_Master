@@ -10,9 +10,10 @@
     ```sh
   $ git clone git@github.com:phongdz98/DSP_Master.git
   $ cd DSP_Master
+  $ cd python_code
   $ python -m venv venv
   $ ./venv/Scripts/activate
-  $ cd python_code
+  $ python -m pip install --upgrade pip
   $ pip install -r requirements.txt
   $ python main.py
     ```
