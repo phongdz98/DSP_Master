@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter import filedialog
 import goertzel
 import matplotlib.pyplot as plt
-import numpy as np
 import os.path
 import csv
 from tabulate import tabulate
@@ -13,7 +12,6 @@ data_list = []
 
 def run_goertzel():
     global data_list
-    global df
     if not root.filename:
         tkinter.messagebox.showerror('Error', 'Выберите файл сигнала!!!!!!!')
     else:
@@ -22,13 +20,12 @@ def run_goertzel():
         _, ext = os.path.splitext(file_path)
         if ext in ['.wav', '.mp3']:
             x = x.T[0]
-        N = int(entry_samples.get())
+        num_samples = int(entry_samples.get())
         freq_min = float(entry_freq_min.get())
         freq_max = float(entry_freq_max.get())
-        fs = float(entry_fs.get())
+        step = float(entry_step.get())
 
-        Y = goertzel.goertzel(x, fs, freq_min, freq_max, N)
-        f = np.arange(freq_min, freq_max, fs / N)
+        f, Y = goertzel.goertzel_range(x, fs, freq_min, freq_max, step, num_samples)
         data_list = [(f[i], Y[i]) for i in range(len(f))]
         text_output.delete('1.0', 'end')
         table = [[f[i], Y[i]] for i in range(len(f))]
@@ -50,8 +47,9 @@ def select_file():
     entry_freq_max.insert(0, goertzel.get_freq(root.filename))
     entry_samples.delete(0, END)
     entry_samples.insert(0, goertzel.get_total_samples(root.filename))
-    entry_fs.delete(0, END)
-    entry_fs.insert(0, goertzel.get_freq(root.filename))
+    entry_step.delete(0, END)
+    entry_step.insert(0, str(float(goertzel.get_freq(root.filename)/goertzel.get_total_samples(root.filename))))
+    label_fs.config(text = str(goertzel.get_freq(root.filename)) )
 
 
 def diagram_input():
@@ -65,7 +63,7 @@ def diagram_input():
         if ext in ['.wav', '.mp3']:
             x = x.T[0]
         plt.plot(x)
-        plt.xlim(0,N)
+        plt.xlim(0, N)
         plt.grid(True)
         plt.xlabel('Время (s)')
         plt.ylabel('Амплитуда')
@@ -79,7 +77,7 @@ def create_csv():
                                                 filetypes=(("csv file", "*.csv"),
                                                            ("all files", "*.*"))
                                                 )
-        with open(filename, mode='w',newline='') as file:
+        with open(filename, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['frequencies', 'amplitudes'])
             writer.writerows(data_list)
@@ -115,15 +113,20 @@ label_signal.grid(column=0, row=1, pady=10)
 frame_freq = Frame(root)
 frame_freq.grid(column=1, row=1, sticky="EW", pady=10, columnspan=2)
 label_freq_min = Label(frame_freq, text="F1,Гц:")
-label_freq_min.grid(column=0, row=0)
+label_freq_min.grid(column=0, row=0, padx=5)
 entry_freq_min = Entry(frame_freq, width=5)
 entry_freq_min.insert(END, '0')
 entry_freq_min.grid(column=1, row=0)
 label_freq_max = Label(frame_freq, text="F2,Гц:")
-label_freq_max.grid(column=2, row=0)
+label_freq_max.grid(column=2, row=0, padx=5)
 entry_freq_max = Entry(frame_freq, width=5)
 entry_freq_max.insert(END, '0')
 entry_freq_max.grid(column=3, row=0)
+label_freq_max = Label(frame_freq, text="Щаг:")
+label_freq_max.grid(column=4, row=0, padx=5)
+entry_step = Entry(frame_freq, width=5)
+entry_step.insert(END, '0')
+entry_step.grid(column=5, row=0)
 
 # 2. Number of sample
 label_samples = Label(text="Количество отчетов всего:")
@@ -135,9 +138,8 @@ entry_samples.grid(sticky="W", column=1, row=2, pady=10)
 # 3. fs
 label_fs = Label(text="Частота дискретизации:")
 label_fs.grid(column=0, row=3, pady=10)
-entry_fs = Entry(width=8)
-entry_fs.insert(END, '0')
-entry_fs.grid(sticky="W", column=1, row=3, pady=10)
+label_fs = Label(width=8, text="0")
+label_fs.grid(sticky="W", column=1, row=3, pady=10)
 
 # 4.Buttons
 run_button = Button(root, text="Тест", command=run_goertzel)

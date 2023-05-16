@@ -1,9 +1,9 @@
-import numpy as np
 from scipy.io import loadmat
 import soundfile as sf
 import os.path
 import tkinter as tk
-
+import math
+import cmath
 
 class MyTk(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -11,26 +11,34 @@ class MyTk(tk.Tk):
         self.filename = None
 
 
-def goertzel(signal, sampling_rate, freq_min, freq_max, num_samples):
+def goertzel(signal, fs, f, num_samples):
     N = num_samples
-    X = []
-    f_array = np.arange(freq_min, freq_max, sampling_rate / N)
+    m = f / fs * N + 1
+    u1 = 0
+    u2 = 0
+    w = 2 * math.pi * (m - 1) / N
 
-    for fg in f_array:
-        m = int(fg / sampling_rate * N) + 1
-        s1 = 0
-        s2 = 0
-        w = 2 * np.pi * (m - 1) / N
+    for n in range(N):
+        u0 = 2 * math.cos(w) * u1 - u2 + signal[n]
+        u2 = u1
+        u1 = u0
 
-        for n in range(N):
-            s0 = 2 * np.cos(w) * s1 - s2 + signal[n]
-            s2 = s1
-            s1 = s0
+    y = u0 - cmath.exp(-1j * w) * u2
+    Y = 2 * abs(y) / N
+    return Y
 
-        y = s0 - np.exp(-1j * w) * s2
-        X.append(2 * np.abs(y) / N)
 
-    return X
+def goertzel_range(signal, fs, f_min, f_max, step, num_samples):
+    f = f_min
+    frequencies = []
+    while f <= f_max:
+        frequencies.append(f)
+        f += step
+    amplitudes = []
+    for f in frequencies:
+        amplitude = goertzel(signal, fs, f, num_samples)
+        amplitudes.append(amplitude)
+    return frequencies, amplitudes
 
 
 def read_signal(file_path):
