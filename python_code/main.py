@@ -66,7 +66,7 @@ def diagram_input():
         plt.plot(x)
         plt.xlim(0, N)
         plt.grid(True)
-        plt.xlabel('Время (s)')
+        plt.xlabel('Время')
         plt.ylabel('Амплитуда')
         plt.title('Входный сигнал')
         plt.show()
@@ -91,7 +91,7 @@ def create_csv():
 # TODO: Interface
 root = goertzel.MyTk()
 root.title('Алгоритм Герцеля')
-root.iconbitmap('./icon.ico')
+root.iconbitmap('./dev.ico')
 root.config(pady=20, padx=20)
 root.minsize(width=600, height=300)
 root.resizable(False, False)
