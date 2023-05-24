@@ -38,7 +38,8 @@ def run_goertzel():
 
 def select_file():
     root.filename = filedialog.askopenfilename(initialdir='./input', title='Select A File',
-                                               filetypes=(("mat file", "*.mat"),
+                                               filetypes=(("numpy file", "*.npz"),
+                                                          ("mat file", "*.mat"),
                                                           ("music file", "*.wav;*.mp3"),
                                                           ("all files", "*.*")))
     entry_signal.delete(0, END)

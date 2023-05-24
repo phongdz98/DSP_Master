@@ -4,6 +4,7 @@ import os.path
 import tkinter as tk
 import math
 import cmath
+import numpy as np
 
 class MyTk(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -47,6 +48,10 @@ def read_signal(file_path):
         mat = loadmat(file_path)
         signal = mat['x'].ravel()
         fs = int(mat['fs'])
+    elif ext == '.npz':
+        data = np.load(file_path)
+        signal = data['x']
+        fs = data['fs']
     else:
         signal, fs = sf.read(file_path)
     return signal, fs
