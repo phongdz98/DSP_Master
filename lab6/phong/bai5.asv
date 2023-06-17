@@ -1,0 +1,16 @@
+clear, clc, close all
+
+fs = 100;
+ts = 0: 1/fs: 5-1/fs;
+N = length(ts);
+
+x = sin(2*pi*10*ts);
+x(300) = []; % убираем из сигнала отсчёт с индексом 300
+
+plot(ts(1:length(ts)-1),x), grid on;
+
+% ДПФ
+figure;
+W = abs(fft(x));
+f = 0:fs/N:fs-fs/N;
+plot(f(1:N/2),W()), grid on;

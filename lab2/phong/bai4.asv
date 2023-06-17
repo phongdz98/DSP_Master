@@ -1,0 +1,17 @@
+clear, close all;
+
+fs = 200;
+ts = 0: 1/fs: 1-1/fs;
+
+x1 = sin(2*pi*4*ts);
+x2 = [x1 x1];
+x3 = [x1 x1 x1];
+
+N = length(x3);
+
+X1 = fft(x1, N);
+X2 = fft(x2, N);
+X3 = fft(x3, N);
+
+subplot(3,2,1)
+plot(x1), xlim([0 N]), grid on, title('4 periods');

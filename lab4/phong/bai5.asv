@@ -1,0 +1,12 @@
+clear, clc, close all;
+
+cat = imread('cat.jpg');
+catGray = rgb2gray(cat);
+imshow(cat);
+
+owls = imread('owls.jpg');
+owlsGray = rgb2gray(owls);
+
+figure
+imshow(owls), hold on;
+
